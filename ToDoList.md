@@ -15,7 +15,7 @@
 Create barebones working prototype from script only ran within Terminal all data manually entered.
 
 ## Phase 2
-Add Automation to have
+Add Automation to have it 
 
 ## Phase 3
 Build out UI on Website and Moblie app
