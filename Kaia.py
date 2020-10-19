@@ -5,31 +5,48 @@ import sys
 import time
 import datetime
 import smtplib, ssl
+from twilio.rest import Client
 
-def emailSend(send, sub):
-  port = 587  # For starttls
-  smtp_server = "smtp.gmail.com"
-  password = ""
-  kaia_email = ""
-  sender_email = input("Please enter your email: ")
-  Text = send
-  Subject = sub
-  message = 'Subject: {}\n\n{}'.format(Subject, Text)
-  context = ssl.create_default_context()
-  with smtplib.SMTP(smtp_server, port) as server:
-      server.ehlo()  # Can be omitted
-      server.starttls(context=context)
-      server.ehlo()  # Can be omitted
-      server.login(kaia_email, password)
-      server.sendmail(kaia_email, sender_email, message)
+def text(engine, user, send):
+	# Your Account SID from twilio.com/console
+	account_sid = "ACea4b3bbf0e980bf3f436886e8ab16273"
+	# Your Auth Token from twilio.com/console
+	auth_token  = "933d2d7c29e953c54ae45bdb11415048"
+	Phone_Text = input("Please enter your phone number to text: ")
+	engine.say("Please enter your phone number to text: ")
+	client = Client(account_sid, auth_token)
+	message = client.messages.create(
+    	to="+1" + Phone_Text, 
+    	from_="+17029963546",
+    	body="Hello " + user + ",\n" + send)
 
-def timer(engine):
+def emailSend(send, subject1, engine):
+  	port = 587  # For starttls
+  	smtp_server = "smtp.gmail.com"
+  	password = "itkdwagifslfdxma"
+  	kaia_email = "kaiaassistant39@gmail.com"
+  	sender_email = input("Please enter your email: ")
+  	Text = send
+  	Subject = str(subject1)
+  	message = 'Subject: {}\n\n{}'.format(Subject, Text)
+  	context = ssl.create_default_context()
+  	with smtplib.SMTP(smtp_server, port) as server:
+  	    server.ehlo()  # Can be omitted
+  	    server.starttls(context=context)
+  	    server.ehlo()  # Can be omitted
+  	    server.login(kaia_email, password)
+  	    server.sendmail(kaia_email, sender_email, message)
+  	    engine.say("An email has been sent out please wait 5 minutes for it to show in your inbox.")
+
+def timer(engine, user):
 	engine.say('What date is your flight: ')
 	engine.runAndWait()
 	flight = input("What date is your flight: ")
 	engine.say("what time is your flight: ")
 	engine.runAndWait()
 	time = input("what time is your flight: ")
+	engine.say("Where are you heading to? ")
+	location = input("Where are you heading to? ")
 	month = flight.split("/")[0]
 	day = flight.split("/")[1]
 	year = flight.split("/")[2]
@@ -39,17 +56,22 @@ def timer(engine):
 	future = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute), 00)
 	difference = future - present
 	print(difference)
-	engine.say('Your flight is in ' + str(difference))
+	engine.say('Your flight is in ' + str(difference) + " moments to " + location)
 	engine.runAndWait()
 	engine.say("Would you like to be email or texted updates on this?")
 	engine.runAndWait()
 	email = input("Would you like to be email or texted updates on this? ")
 	if email.lower() == "email":
-		send = 'Your flight is in ' + str(difference)
-		sub = "Kaia report on Flight time"
-		emailSend(send)
+		send = 'Your flight is in ' + str(difference) + " moments to " + location
+		subject1 = "Kaia report on Flight time"
+		emailSend(send, engine, subject1)
 	elif email.lower() == "texted":
-		text()
+		send = 'Your flight is in ' + str(difference) + " moments to " + location
+		text(engine, user, send)
+	else:
+		print("Thank you")
+		engine.say("Thank you, come again")
+		engine.say("asshole")
 
 def google():
 	# enter your api key here 
@@ -105,16 +127,16 @@ engine.say('How can I help you today? ')
 engine.runAndWait()
 engine.say("Please pick one of the following choices: Flight, Hotel, Restaurant, or Bar")
 engine.runAndWait()
-choice = input("Please pick one of the following choices: \n Flight \n Hotel \n Restaurant \n Bar \n")
+choice = input("Please pick one of the following choices: \n* Flight \n* Hotel \n* Restaurant \n* Bar \n")
 if choice.lower() == 'flight':
-	timer(engine)
+	timer(engine, user)
 elif choice.lower() == 'hotel':
-	hotel()
+	hotel(engine, user)
 	email = input("Would you like to be email updates on this?")
 elif choice.lower() == 'bar':
-	bar()
+	bar(engine, user)
 	email = input("Would you like to be email updates on this?")
 else:
-	Restaurant()
+	Restaurant(engine, user)
 	email = input("Would you like to be email updates on this?")
 
