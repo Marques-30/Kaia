@@ -9,6 +9,7 @@ import smtplib
 import ssl
 from twilio.rest import Client
 from dotenv import load_dotenv
+from yelp.yelp import search_restaurant as search
 
 load_dotenv()
 
@@ -144,11 +145,8 @@ choice = input(
 if choice.lower() == 'flight':
     timer(engine, user)
 elif choice.lower() == 'hotel':
-    hotel(engine, user)
-    email = input("Would you like to be email updates on this?")
+    search(engine, choice)
 elif choice.lower() == 'bar':
-    bar(engine, user)
-    email = input("Would you like to be email updates on this?")
+    search(engine, choice)
 else:
-    Restaurant(engine, user)
-    email = input("Would you like to be email updates on this?")
+    search(engine, choice)

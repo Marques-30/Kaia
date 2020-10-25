@@ -1,9 +1,10 @@
 search_query = '''
+query GetResults($amount: Int, $term: String, $location: String)
 {
-  search(term: "burrito",
-          location: "670 natoma, san francisco",
-          limit: 5
-          price: "1") {
+  search(term: $term,
+          location: $location,
+          limit: $amount
+          sort_by: "distance") {
             total
             business {
               name
