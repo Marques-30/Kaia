@@ -14,8 +14,16 @@ def get_query_variables(engine):
     engine.say('How many results do you want?')
     engine.runAndWait()
     amount = input('How many results do you want? ')
+    engine.say('Would you like to see only cheap results?')
+    engine.runAndWait()
+    cheap = input('Would you like to see only cheap results?')
 
-    return location, int(amount)
+    if cheap.lower() == 'yes':
+        cheap_results = True
+    else:
+        cheap_results = False
+
+    return location, int(amount), cheap_results
 
 
 def search_restaurant(engine, choice):
@@ -26,13 +34,16 @@ def search_restaurant(engine, choice):
         'Content-Type': "application/json"
     }
     url = 'https://api.yelp.com/v3/graphql'
-    location, amount = get_query_variables(engine)
+    location, amount, cheap_results = get_query_variables(engine)
 
     variables = {
         'term': choice,
         'location': location,
-        'amount': amount
+        'amount': amount,
+        'price': "1,2,3,4"
     }
+    if cheap_results:
+        variables['price'] = "1"
     search = {
         'query': search_query,
         'variables': variables

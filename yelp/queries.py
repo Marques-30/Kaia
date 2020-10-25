@@ -1,26 +1,32 @@
 search_query = '''
-query GetResults($amount: Int, $term: String, $location: String)
+query GetResults($amount: Int, $term: String, $location: String, $price: String)
 {
   search(term: $term,
           location: $location,
           limit: $amount
+          price: $price
           sort_by: "distance") {
             total
             business {
               name
-              id
-              alias
-              phone
-              display_phone
               price
-              distance
               location {
                 address1
                 city
               }
-              coordinates {
-                latitude
-                longitude
+              hours {
+                open {
+                  day
+                  start
+                  end
+                }
+              }
+              reviews {
+                user {
+                  name
+                }
+                rating
+                text
               }
             }
           }
