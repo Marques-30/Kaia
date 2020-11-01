@@ -9,7 +9,7 @@ import smtplib
 import ssl
 import sqlite3
 from twilio.rest import Client
-from .queries import search_query
+from yelp.queries import search_query
 import json
 
 def get_query_variables(engine):
@@ -21,7 +21,7 @@ def get_query_variables(engine):
     amount = input('How many results do you want? ')
     engine.say('Would you like to see only cheap results?')
     engine.runAndWait()
-    cheap = input('Would you like to see only cheap results?')
+    cheap = input('Would you like to see only cheap results? ')
 
     if cheap.lower() == 'yes':
         cheap_results = True
@@ -31,7 +31,7 @@ def get_query_variables(engine):
     return location, int(amount), cheap_results
 
 def search(engine, choice, c, conn):
-    api_key = os.getenv('iCkiw4en2tSbbxzHRJQiMra8x3p47h_1AEkPx5r6gdDEYxxjPDa6rvXOT0xL2BTN8qLTIH34_O-rJZRSiO63DAdvEvD9UBtyGaczIBqOF4K4F0UCc6-Qg561byeFX3Yx')
+    api_key = 'iCkiw4en2tSbbxzHRJQiMra8x3p47h_1AEkPx5r6gdDEYxxjPDa6rvXOT0xL2BTN8qLTIH34_O-rJZRSiO63DAdvEvD9UBtyGaczIBqOF4K4F0UCc6-Qg561byeFX3Yx'
 
     header = {
         'Authorization': f'bearer {api_key}',
@@ -68,20 +68,20 @@ def search(engine, choice, c, conn):
     engine.runAndWait()
     email = input("Would you like to be email or texted updates on this? ")
     if email.lower() == "email":
-        send = f'Your flight is in {difference} moments to {location}'
+        send = results
         subject1 = "Kaia report on Flight time"
-        emailSend(send, engine, subject1)
-    elif email.lower() == "texted":
-        send = f'Your flight is in {difference} moments to {location}'
-        text(engine, user, send)
+        emailSend(send, engine, subject1, c, conn)
+    elif email.lower() == "text":
+        send = results
+        text(engine, user, send, c, conn)
     else:
         print("Thank you")
 
 def text(engine, user, send, c, conn):
     # Your Account SID from twilio.com/console
-    account_sid = os.getenv('ACea4b3bbf0e980bf3f436886e8ab16273')
+    account_sid = 'ACea4b3bbf0e980bf3f436886e8ab16273'
     # Your Auth Token from twilio.com/console
-    auth_token = os.getenv('933d2d7c29e953c54ae45bdb11415048')
+    auth_token = 'd9c6d9b3c35b6c95397cc5adbe5cd6c9'
     Phone_Text = input("Please enter your phone number to text: ")
     engine.say("Please enter your phone number to text: ")
     client = Client(account_sid, auth_token)
@@ -89,8 +89,7 @@ def text(engine, user, send, c, conn):
         to="+1" + Phone_Text,
         from_="+17029963546",
         body="Hello " + user + ",\n" + send)
-    c.execute('''UPDATE TABLE CLIENTS
-        ([generated_id] INTEGER PRIMARY KEY,[Client_Name] text, [phone] integer, [email] text)''')
+    c.execute('''INSERT INTO CLIENTS (Client_Name, Phone) VALUES (%s, %w)'''%(user, Phone_Text))
     conn.commit()
 
 def nightlife(engine, ploc, c, conn):
@@ -154,12 +153,13 @@ def location(engine):
     longitude = data['items'][0]['position']['lng']
     print(f'{str(longitude)}, {str(latitude)}')
     ploc = str(longitude) + "," + str(latitude)
+    return ploc
 
-def emailSend(send, subject1, engine):
+def emailSend(send, subject1, engine, c, conn):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
-    password = os.getenv('itkdwagifslfdxma')
-    kaia_email = os.getenv('kaiaassistant39@gmail.com')
+    password = 'itkdwagifslfdxma'
+    kaia_email = 'kaiaassistant39@gmail.com'
     sender_email = input("Please enter your email: ")
     Text = send
     Subject = str(subject1)
@@ -171,7 +171,9 @@ def emailSend(send, subject1, engine):
         server.ehlo()  # Can be omitted
         server.login(kaia_email, password)
         server.sendmail(kaia_email, sender_email, message)
-        engine.say("An email has been sent out please wait about 5 minutes for it to show in your inbox.")
+        #engine.say(str("An email has been sent out please wait about 5 minutes for it to show in your inbox."))
+    c.execute('''INSERT INTO CLIENTS (Client_Name, Email) VALUES (%s, %s)'''%(user, str(sender_email)))
+    conn.commit()
 
 
 def timer(engine, user, c, conn):
@@ -261,7 +263,7 @@ engine.say(f'Hello {user}')
 engine.runAndWait()
 engine.say('How can I help you today?')
 engine.runAndWait()
-location(engine)
+#location(engine)
 engine.say(
     "Please pick one of the following choices: Flight, Hotel, Restaurant, or Bar")
 engine.runAndWait()
