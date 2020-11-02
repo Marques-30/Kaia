@@ -66,6 +66,8 @@ def search(engine, choice, c, conn):
         file.write(results)
     engine.say("Would you like to be email or texted updates on this?")
     engine.runAndWait()
+    c.execute('''INSERT INTO %s (Client_Name, Location, Name, Price, Rating) VALUES (%s, %w)'''%(choice, user, location, name, Price, Rating))
+    conn.commit()
     email = input("Would you like to be email or texted updates on this? ")
     if email.lower() == "email":
         send = results
@@ -278,4 +280,4 @@ elif choice.lower() == 'bar':
 elif choice.lower() == 'restaurant':
     search(engine, choice, c, conn)
 else:
-    nightlife(engine, c)
+    nightlife(engine, c, conn)
